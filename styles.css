@@ -915,7 +915,7 @@ h1 span,
   color: hsl(var(--foreground));
   outline: none;
   padding: 10px 0 16px;
-  resize: vertical;
+  resize: none;
 }
 
 .contact-form input::placeholder,
