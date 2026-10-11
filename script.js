@@ -48,7 +48,7 @@ window.addEventListener("resize", requestNavSync);
 
 const typedLines = [...document.querySelectorAll(".typed-line")];
 const greeting = ["Olá, seja", "bem-vindo!"];
-const signature = ["Pedro Lima,", "aqui"];
+const signature = ["Pedro", "Lima"];
 const caret = document.querySelector(".caret");
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
