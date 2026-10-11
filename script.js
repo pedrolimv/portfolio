@@ -46,13 +46,72 @@ syncNavDots();
 window.addEventListener("scroll", requestNavSync, { passive: true });
 window.addEventListener("resize", requestNavSync);
 
-const budgetInput = document.querySelector("#budget-input");
-const budgetButtons = [...document.querySelectorAll("[data-budget]")];
+const typedLines = [...document.querySelectorAll(".typed-line")];
+const greeting = ["Olá, seja", "bem-vindo!"];
+const signature = ["Pedro Lima,", "aqui"];
+const caret = document.querySelector(".caret");
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-budgetButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    budgetButtons.forEach((item) => item.classList.remove("selected"));
-    button.classList.add("selected");
-    budgetInput.value = button.dataset.budget;
-  });
+const typeText = async (lines) => {
+  for (let i = 0; i < lines.length; i += 1) {
+    typedLines[i].after(caret);
+    for (const char of lines[i]) {
+      typedLines[i].textContent += char;
+      await wait(85);
+    }
+    await wait(120);
+  }
+};
+
+const eraseText = async () => {
+  for (let i = typedLines.length - 1; i >= 0; i -= 1) {
+    typedLines[i].after(caret);
+    while (typedLines[i].textContent.length) {
+      typedLines[i].textContent = typedLines[i].textContent.slice(0, -1);
+      await wait(40);
+    }
+  }
+};
+
+if (typedLines.length) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    signature.forEach((text, i) => (typedLines[i].textContent = text));
+  } else {
+    (async () => {
+      await wait(400);
+      await typeText(greeting);
+      await wait(1600);
+      await eraseText();
+      await wait(350);
+      await typeText(signature);
+    })();
+  }
+}
+
+const contactForm =document.querySelector(".contact-form");
+const formStatus = document.querySelector(".form-status");
+
+contactForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submitButton = contactForm.querySelector(".submit-btn");
+  submitButton.disabled = true;
+  formStatus.className = "form-status";
+  formStatus.textContent = "Enviando...";
+
+  try {
+    const response = await fetch(contactForm.action.replace("formsubmit.co/", "formsubmit.co/ajax/"), {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body: new FormData(contactForm),
+    });
+    if (!response.ok) throw new Error(response.statusText);
+    contactForm.reset();
+    formStatus.classList.add("ok");
+    formStatus.textContent = "Mensagem enviada! Retorno em breve.";
+  } catch {
+    formStatus.classList.add("error");
+    formStatus.textContent = "Não foi possível enviar. Tente pelo e-mail ao lado.";
+  } finally {
+    submitButton.disabled = false;
+  }
 });
